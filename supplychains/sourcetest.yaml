@@ -1,0 +1,15 @@
+apiVersion: supply-chain.apps.tanzu.vmware.com/v1alpha1
+kind: SupplyChain
+metadata:
+    name: sourcetest
+spec:
+    defines:
+        group: source.test.vmware.com
+        kind: sourcetest
+        plural: sourcetests
+        version: v1alpha1
+    description: source testing supplychain workload
+    stages:
+        - componentRef:
+            name: source-git-provider-1.0.0
+          name: source-git-provider
