@@ -1,0 +1,21 @@
+apiVersion: source.test.vmware.com/v1alpha1
+kind: gitsource
+metadata:
+  name: autheicated-git-source
+spec:
+  source:
+    #! The sub path in the bundle to locate source code
+    subPath: ""
+    #! Use this object to retrieve source from a git repository.
+    #! The tag, commit and branch fields are mutually exclusive, use only one.
+    #! Required
+    git:
+      #! A git tag ref to watch for new source
+      # tag: ""
+      #! The url to the git source repository
+      #! Required
+      url: "https://github.com/vmware-tanzu/source-controller.git"
+      #! A git branch ref to watch for new source
+      branch: "main"
+      #! A git commit sha to use
+      # commit: ""
