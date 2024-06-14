@@ -1,7 +1,7 @@
 apiVersion: source.test.vmware.com/v1alpha1
 kind: gitsource
 metadata:
-  name: autheicated-git-source
+  name: "bad-branch"
 spec:
   source:
     #! The sub path in the bundle to locate source code
@@ -14,8 +14,8 @@ spec:
       # tag: ""
       #! The url to the git source repository
       #! Required
-      url: "https://github.com/vmware-tanzu/source-controller.git"
+      url: "https://github.com/rashedkvm/SupplyChain.git"
       #! A git branch ref to watch for new source
-      branch: "main"
+      branch: "bad-branch"
       #! A git commit sha to use
       # commit: ""
