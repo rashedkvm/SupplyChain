@@ -60,12 +60,12 @@ spec:
               exit 1
             fi
 
-            printf "$url" | tee $(results.url.path)
+            printf "$url" | tr -d '\n' | tee $(results.url.path)
 
             if [ ! -z "$branch" ]; then
               sha=$(git ls-remote --heads $url $branch | awk '{print $1}')
               if [ -z "$sha" ]; then
-                printf "error using git-branch: $(params.git-branch)" | tee $(results.message.path)
+                printf "error using git-branch: $(params.git-branch)" | tr -d '\n'| tee $(results.message.path)
                 exit 1
               else
                 echo $sha | tr -d '\n' | tee $(results.sha.path)
