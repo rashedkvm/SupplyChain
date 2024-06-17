@@ -63,8 +63,15 @@ spec:
             printf "$url" | tee $(results.url.path)
 
             if [ ! -z "$branch" ]; then
-              git ls-remote --heads $(params.git-url) $(params.git-branch) | awk '{print $1}' | tr -d '\n' | tee $(results.sha.path)
-              printf "using git-branch: $(params.git-branch)" | tee $(results.message.path)
+              sha=$(git ls-remote --heads $url $branch | awk '{print $1}')
+              if [ -z "$sha" ]; then
+                printf "error using git-branch: $(params.git-branch)" | tee $(results.message.path)
+                exit 1
+              else
+                echo $sha | tr -d '\n' | tee $(results.sha.path)
+                printf "using git-branch: $(params.git-branch)" | tee $(results.message.path)
+              # git ls-remote --heads $(params.git-url) $(params.git-branch) | awk '{print $1}' | tr -d '\n' | tee $(results.sha.path)
+              # printf "using git-branch: $(params.git-branch)" | tee $(results.message.path)
             elif [ ! -z "$tag" ]; then
               git ls-remote --tags $(params.git-url) refs/tags/$(params.git-tag) | awk '{print $1}' | tr -d '\n' | tee $(results.sha.path)
               printf "using git-tag: $(params.git-tag)" | tee $(results.message.path)
