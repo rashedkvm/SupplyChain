@@ -16,6 +16,6 @@ spec:
       #! Required
       url: "https://github.com/rashedkvm/SupplyChain.git"
       #! A git branch ref to watch for new source
-      branch: "bad-branch"
+      branch: "main"
       #! A git commit sha to use
       # commit: ""
