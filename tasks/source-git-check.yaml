@@ -65,7 +65,7 @@ spec:
             if [ ! -z "$branch" ]; then
               sha=$(git ls-remote --heads $url $branch | awk '{print $1}')
               if [ -z "$sha" ]; then
-                echo -e "\n error using git-branch: $(params.git-branch)" | tee $(results.message.path)
+                echo "\nerror using git-branch: $(params.git-branch)" | tee $(results.message.path)
                 exit 1
               else
                 echo $sha | tr -d '\n' | tee $(results.sha.path)
