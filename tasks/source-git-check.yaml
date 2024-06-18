@@ -65,35 +65,35 @@ spec:
             if [ ! -z "$branch" ]; then
               sha=$(git ls-remote --heads $url $branch | awk '{print $1}')
               if [ -z "$sha" ]; then
-                printf "error using git-branch: $(params.git-branch)\n" | tee $(results.message.path)
+                printf "error using git-branch: $(params.git-branch) \n" | tee $(results.message.path)
                 exit 1
               else
                 printf "$sha" | tee $(results.sha.path)
-                printf "success using git-branch: $(params.git-branch)\n" | tee $(results.message.path)
+                printf "success using git-branch: $(params.git-branch) \n" | tee $(results.message.path)
               fi
             elif [ ! -z "$tag" ]; then
               sha=$(git ls-remote --tags $(params.git-url) refs/tags/$(params.git-tag) | awk '{print $1}')
               if [ -z "$sha" ]; then
-                printf "error using git-tag: $(params.git-tag)\n" | tee $(results.message.path)
+                printf "error using git-tag: $(params.git-tag) \n" | tee $(results.message.path)
                 exit 1
               else
                 printf "$sha" | tee $(results.sha.path)
-                printf "using git-tag: $(params.git-tag)\n" | tee $(results.message.path)
+                printf "using git-tag: $(params.git-tag) \n" | tee $(results.message.path)
               fi
             elif [ ! -z "$commit" ]; then
               git_ls_remote_output=$(git ls-remote --refs $(params.git-url) | awk '{print $1}')
               if [ $? -ne 0 ]; then
-                printf "error: inavlid $(params.git-url)\n"  | tee $(results.message.path)
+                printf "error: inavlid $(params.git-url) \n"  | tee $(results.message.path)
                 exit 1
               fi
               if echo "$git_ls_remote_output" | grep -q "$commit"; then
                 printf "$(params.git-commit)" | tee $(results.sha.path)
-                printf "using git-commit: $(params.git-commit)\n" | tee $(results.message.path)
+                printf "using git-commit: $(params.git-commit) \n" | tee $(results.message.path)
               else
-                printf "error: commit $(params.git-commit)not found in $(params.git-url)\n"  | tee $(results.message.path)
+                printf "error: commit $(params.git-commit)not found in $(params.git-url) \n"  | tee $(results.message.path)
                 exit 1
               fi
             else
-              printf "Cannot look for source, you must provide one of git-branch, git-tag, git-commit or git-url.\n" | tee $(results.message.path)
+              printf "Cannot look for source, you must provide one of git-branch, git-tag, git-commit or git-url. \n" | tee $(results.message.path)
               exit 1
             fi
