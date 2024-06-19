@@ -2,6 +2,10 @@ apiVersion: tekton.dev/v1
 kind: Task
 metadata:
     name: source-git-check
+workspaces:
+  - name: shared-data
+    secret:
+      secretName: ca-cert
 spec:
     params:
         - default: ""
