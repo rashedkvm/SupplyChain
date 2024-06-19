@@ -79,6 +79,8 @@ spec:
                     runAsUser: 1001
         workspaces:
             - name: shared-data
+              secret:
+                secretName: ca-cert
               volumeClaimTemplate:
                 spec:
                     accessModes:

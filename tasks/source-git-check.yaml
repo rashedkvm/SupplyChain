@@ -3,6 +3,10 @@ kind: Task
 metadata:
     name: source-git-check
 spec:
+    workspaces:
+    - name: shared-data
+      secret:
+        secretName: ca-cert
     params:
         - default: ""
           description: A git branch ref to watch for new source
