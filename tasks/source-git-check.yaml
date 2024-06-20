@@ -51,6 +51,8 @@ spec:
         - computeResources: {}
           image: us-east1-docker.pkg.dev/tanzucliappdev/tap-components/tap-packages@sha256:5a9d9e5588db709a4645ed966ad678a1a9edb44616f2fb8145493d8bce52ac02
           name: get-latest-commit
+          workspaces:
+            - name: shared-data
           script: |-
             #!/usr/bin/env sh
             set -eu
