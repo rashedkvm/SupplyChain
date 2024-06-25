@@ -102,4 +102,4 @@ spec:
           taskRef:
             name: source-git-check
           trigger:
-            runAfter: 60s
+            runAfter: 10m
