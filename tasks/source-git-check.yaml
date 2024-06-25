@@ -48,58 +48,56 @@ spec:
             seccompProfile:
                 type: RuntimeDefault
     steps:
-        - computeResources: {}
-          image: us-east1-docker.pkg.dev/tanzucliappdev/tap-components/tap-packages@sha256:5a9d9e5588db709a4645ed966ad678a1a9edb44616f2fb8145493d8bce52ac02
-          name: get-latest-commit
-          workspaces:
-            - name: shared-data
-          script: |-
-            #!/usr/bin/env sh
-            set -eu
-            url="$(params.git-url)"
-            branch="$(params.git-branch)"
-            tag="$(params.git-tag)"
-            commit="$(params.git-commit)"
+    - computeResources: {}
+      image: us-east1-docker.pkg.dev/tanzucliappdev/tap-components/tap-packages@sha256:5a9d9e5588db709a4645ed966ad678a1a9edb44616f2fb8145493d8bce52ac02
+      name: get-latest-commit
+      script: |-
+        #!/usr/bin/env sh
+        set -eu
+        url="$(params.git-url)"
+        branch="$(params.git-branch)"
+        tag="$(params.git-tag)"
+        commit="$(params.git-commit)"
 
-            if [ -z "$url" ]; then
-              printf "error: no git-url provided. git-url must exist\n" | tee $(results.message.path)
-              exit 1
-            fi
+        if [ -z "$url" ]; then
+          printf "error: no git-url provided. git-url must exist\n" | tee $(results.message.path)
+          exit 1
+        fi
 
-            printf '%b\n' "$url" | tee $(results.url.path)
+        printf '%b\n' "$url" | tee $(results.url.path)
 
-            if [ ! -z "$branch" ]; then
-              sha=$(git ls-remote --heads $url $branch | awk '{print $1}')
-              if [ -z "$sha" ]; then
-                printf 'error: using git-branch:%b\n' "$(params.git-branch)" | tee $(results.message.path)
-                exit 1
-              else
-                printf '%b\n'"$sha" | tee $(results.sha.path)
-                printf 'success: using git-branch: %b\n' "$(params.git-branch)" | tee $(results.message.path)
-              fi
-            elif [ ! -z "$tag" ]; then
-              sha=$(git ls-remote --tags $(params.git-url) refs/tags/$(params.git-tag) | awk '{print $1}')
-              if [ -z "$sha" ]; then
-                printf 'error: using git-tag: %b\n' "$(params.git-tag)" | tee $(results.message.path)
-                exit 1
-              else
-                printf '%b\n' "$sha" | tee $(results.sha.path)
-                printf 'success: using git-tag: %b\n' "$(params.git-tag)" | tee $(results.message.path)
-              fi
-            elif [ ! -z "$commit" ]; then
-              git_ls_remote_output=$(git ls-remote --refs $(params.git-url) | awk '{print $1}')
-              if [ $? -ne 0 ]; then
-                printf 'error: inavlid %b\n' "$(params.git-url)"  | tee $(results.message.path)
-                exit 1
-              fi
-              if echo "$git_ls_remote_output" | grep -q "$commit"; then
-                printf '%b\n' "$(params.git-commit)" | tee $(results.sha.path)
-                printf 'success: using git-commit: %b\n' "$(params.git-commit)" | tee $(results.message.path)
-              else
-                printf 'error: commit %b not found in %b\n' "$(params.git-commit)" "$(params.git-url)"  | tee $(results.message.path)
-                exit 1
-              fi
-            else
-              printf "error: cannot look for source, you must provide one of git-branch, git-tag, git-commit or git-url.\n" | tee $(results.message.path)
-              exit 1
-            fi
+        if [ ! -z "$branch" ]; then
+          sha=$(git ls-remote --heads $url $branch | awk '{print $1}')
+          if [ -z "$sha" ]; then
+            printf 'error: using git-branch:%b\n' "$(params.git-branch)" | tee $(results.message.path)
+            exit 1
+          else
+            printf '%b\n'"$sha" | tee $(results.sha.path)
+            printf 'success: using git-branch: %b\n' "$(params.git-branch)" | tee $(results.message.path)
+          fi
+        elif [ ! -z "$tag" ]; then
+          sha=$(git ls-remote --tags $(params.git-url) refs/tags/$(params.git-tag) | awk '{print $1}')
+          if [ -z "$sha" ]; then
+            printf 'error: using git-tag: %b\n' "$(params.git-tag)" | tee $(results.message.path)
+            exit 1
+          else
+            printf '%b\n' "$sha" | tee $(results.sha.path)
+            printf 'success: using git-tag: %b\n' "$(params.git-tag)" | tee $(results.message.path)
+          fi
+        elif [ ! -z "$commit" ]; then
+          git_ls_remote_output=$(git ls-remote --refs $(params.git-url) | awk '{print $1}')
+          if [ $? -ne 0 ]; then
+            printf 'error: inavlid %b\n' "$(params.git-url)"  | tee $(results.message.path)
+            exit 1
+          fi
+          if echo "$git_ls_remote_output" | grep -q "$commit"; then
+            printf '%b\n' "$(params.git-commit)" | tee $(results.sha.path)
+            printf 'success: using git-commit: %b\n' "$(params.git-commit)" | tee $(results.message.path)
+          else
+            printf 'error: commit %b not found in %b\n' "$(params.git-commit)" "$(params.git-url)"  | tee $(results.message.path)
+            exit 1
+          fi
+        else
+          printf "error: cannot look for source, you must provide one of git-branch, git-tag, git-commit or git-url.\n" | tee $(results.message.path)
+          exit 1
+        fi

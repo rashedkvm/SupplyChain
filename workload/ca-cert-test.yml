@@ -14,7 +14,7 @@ spec:
       # tag: ""
       #! The url to the git source repository
       #! Required
-      url: "https://34.162.97.4/ca-cert-test/transaction-manager.git"
+      url: "https://34.162.97.4/testing/hello-world.git"
       #! A git branch ref to watch for new source
       branch: "main"
       #! A git commit sha to use

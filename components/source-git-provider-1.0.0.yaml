@@ -80,7 +80,7 @@ spec:
         workspaces:
             - name: shared-data
               secret:
-                secretName: ca-cert
+                secretName: gitlab-cert
               volumeClaimTemplate:
                 spec:
                     accessModes:
