@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:json", "json")
+#@ load("@ytt:base64", "base64")
+#@ def generate_dockerconfigjson():
+#@   dcj = {"auths": {}}
+#@   up = {"username": data.values.tanzusupplychain.ocistore.username, "password": data.values.tanzusupplychain.ocistore.password}
+#@   dcj["auths"][data.values.tanzusupplychain.ocistore.server] = up
+#@   return base64.encode(json.encode(dcj))
+#@ end
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: #@ generate_dockerconfigjson()
+kind: Secret
+metadata:
+  name: oci-store-credentials
+  namespace: #@ data.values.name
+  annotations:
+    tekton.dev/docker-0: #@ data.values.tanzusupplychain.ocistore.server + "/" + data.values.tanzusupplychain.ocistore.repository
+type: kubernetes.io/dockerconfigjson

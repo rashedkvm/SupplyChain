@@ -1,0 +1,14 @@
+#@data/values-schema
+---
+name: "my-dev"
+tanzusupplychain:
+  ocistore:
+    username: "reg-user"
+    password: "reg-pass"
+    repository: "repository-url"
+    server: "reg-URL"
+  gitlab:
+    username: "gitlab-user"
+    password: "gitlab-pat"
+    ca_cert: "cert.crt | base64"
+    repository: "repository"

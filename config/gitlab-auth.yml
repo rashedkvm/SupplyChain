@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-auth
+  namespace: #@ data.values.name
+  annotations:
+    tekton.dev/git-0: #@ data.values.tanzusupplychain.gitlab.repository
+data:
+  username: #@ data.values.tanzusupplychain.gitlab.username
+  password: #@ data.values.tanzusupplychain.gitlab.password
+type: Opaque
