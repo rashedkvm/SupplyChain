@@ -1,0 +1,28 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: git-clone-checking-out-a-branch
+spec:
+  pipelineRef:
+    name: source-git-provider
+  workspaces:
+  - name: shared-data
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  - name: ssl-ca-dir
+    secret:
+      secretName: gitlab-cert
+  params:
+  - name: git-url
+    value: https://github.com/concourse/semver-resource.git
+     # value: https://34.162.97.4/testing/hello-world.git
+  - name: workload-name
+    value: shit-wld
+  - name: sha
+    value: "6480670f371b1327e345abfde4c587afe563f89c"
