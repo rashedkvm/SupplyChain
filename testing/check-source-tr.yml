@@ -1,0 +1,29 @@
+
+---
+apiVersion: tekton.dev/v1
+kind: TaskRun
+metadata:
+  name: check-source-tr
+  namespace: my-dev
+spec:
+  params:
+  - name: git-branch
+    value: main
+  - name: git-url
+    value: https://github.com/vmware-tanzu/source-controller.git
+  - name: git-commit
+    value: ""
+  - name: git-tag
+    value: ""
+  serviceAccountName: default
+  taskRef:
+    kind: Task
+    params:
+    - name: kind
+      value: task
+    - name: name
+      value: source-git-check
+    - name: namespace
+      value: my-dev
+    resolver: cluster
+  timeout: 1h0m0s
