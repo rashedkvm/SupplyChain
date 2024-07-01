@@ -1,0 +1,27 @@
+#@ load("@ytt:data", "data")
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.namespace
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ data.values.secret_name
+  namespace: #@ data.values.namespace
+  annotations:
+    tekton.dev/git-0: #@ data.values.tanzusupplychain.github.repository
+stringData:
+  username: #@ data.values.tanzusupplychain.github.username
+  password: #@ data.values.tanzusupplychain.github.password
+type: kubernetes.io/basic-auth
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name:  #@ data.values.service_account_name
+  namespace:  #@ data.values.namespace
+secrets:
+- name: #@ data.values.secret_name
