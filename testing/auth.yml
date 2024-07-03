@@ -19,9 +19,30 @@ stringData:
 type: kubernetes.io/basic-auth
 ---
 apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "gitlab-" + data.values.secret_name
+  namespace: #@ data.values.namespace
+  annotations:
+    tekton.dev/git-1: #@ data.values.tanzusupplychain.gitlab.repository
+stringData:
+  username: #@ data.values.tanzusupplychain.gitlab.username
+  password: #@ data.values.tanzusupplychain.gitlab.password
+type: kubernetes.io/basic-auth
+---
+apiVersion: v1
 kind: ServiceAccount
 metadata:
   name:  #@ data.values.service_account_name
   namespace:  #@ data.values.namespace
 secrets:
 - name: #@ data.values.secret_name
+- name: #@ "gitlab-" + data.values.secret_name 
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: #@ data.values.ssl_secret_name
+  namespace: #@ data.values.namespace
+data:
+  ca-bundle.crt: #@ data.values.tanzusupplychain.gitlab.ca_cert

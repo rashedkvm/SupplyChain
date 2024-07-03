@@ -8,50 +8,66 @@ metadata:
   annotations:
     kapp.k14s.io/change-group: sourcegitcheck-task
 spec:
-    params:
-        - default: ""
-          description: A git branch ref to watch for new source
-          name: git-branch
-          type: string
-        - default: ""
-          description: A git tag ref to watch for new source
-          name: git-tag
-          type: string
-        - default: ""
-          description: A git commit sha to use
-          name: git-commit
-          type: string
-        - description: The url to the git source repository. +Required
-          name: git-url
-          type: string
-    results:
-        - description: The url to the git source repository.
-          name: url
-          type: string
-        - description: The sha to clone as configured by commit/branch/tag
-          name: sha
-          type: string
-        - description: The sha to clone as configured by commit/branch/tag
-          name: checksum
-          type: string
-        - description: Important result description, especially for error messages
-          name: message
-          type: string
-    stepTemplate:
-        computeResources: {}
-        securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-                drop:
-                    - ALL
-            runAsNonRoot: true
-            runAsUser: 1001
-            seccompProfile:
-                type: RuntimeDefault
-    steps:
-    - computeResources: {}
+  workspaces:
+    - name: ssl-ca-directory
+      optional: true
+      description: |
+        A workspace containing CA certificates, this will be used by Git to
+        verify the peer with when fetching or pushing over HTTPS.
+  params:
+    - default: ""
+      description: A git branch ref to watch for new source
+      name: git-branch
+      type: string
+    - default: ""
+      description: A git tag ref to watch for new source
+      name: git-tag
+      type: string
+    - default: ""
+      description: A git commit sha to use
+      name: git-commit
+      type: string
+    - description: The url to the git source repository. +Required
+      name: git-url
+      type: string
+    - name: crtFileName
+      description: file name of mounted crt using ssl-ca-directory workspace. default value is ca-bundle.crt.
+      type: string
+      default: "ca-bundle.crt"
+  results:
+    - description: The url to the git source repository.
+      name: url
+      type: string
+    - description: The sha to clone as configured by commit/branch/tag
+      name: sha
+      type: string
+    - description: The sha to clone as configured by commit/branch/tag
+      name: checksum
+      type: string
+    - description: Important result description, especially for error messages
+      name: message
+      type: string
+  stepTemplate:
+    computeResources: {}
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+          drop:
+            - ALL
+      runAsNonRoot: true
+      runAsUser: 1001
+      seccompProfile:
+        type: RuntimeDefault
+  steps:
+    - name: get-latest-commit
+      env:
+      - name: PARAM_CRT_FILENAME
+        value: $(params.crtFileName)
+      - name: WORKSPACE_SSL_CA_DIRECTORY_BOUND
+        value: $(workspaces.ssl-ca-directory.bound)
+      - name: WORKSPACE_SSL_CA_DIRECTORY_PATH
+        value: $(workspaces.ssl-ca-directory.path)
       image: us-east1-docker.pkg.dev/tanzucliappdev/tap-components/tap-packages@sha256:5a9d9e5588db709a4645ed966ad678a1a9edb44616f2fb8145493d8bce52ac02
-      name: get-latest-commit
       script: |-
         #!/usr/bin/env sh
         set -eu
@@ -66,6 +82,15 @@ spec:
         fi
 
         printf '%b\n' "$url" | tee $(results.url.path)
+        # 
+
+        # Custom CA support
+        if [ "${WORKSPACE_SSL_CA_DIRECTORY_BOUND}" = "true" ] ; then
+            export GIT_SSL_CAPATH="${WORKSPACE_SSL_CA_DIRECTORY_PATH}"
+            if [ "${PARAM_CRT_FILENAME}" != "" ] ; then
+              export GIT_SSL_CAINFO="${WORKSPACE_SSL_CA_DIRECTORY_PATH}/${PARAM_CRT_FILENAME}"
+            fi
+        fi
 
         if [ ! -z "$branch" ]; then
           sha=$(git ls-remote --heads $url $branch | awk '{print $1}')
@@ -102,6 +127,7 @@ spec:
           printf "error: cannot look for source, you must provide one of git-branch, git-tag, git-commit or git-url.\n" | tee $(results.message.path)
           exit 1
         fi
+
 ---
 apiVersion: tekton.dev/v1
 kind: TaskRun
@@ -132,3 +158,37 @@ spec:
       value: #@ data.values.namespace
     resolver: cluster
   timeout: 1h0m0s
+---
+apiVersion: tekton.dev/v1
+kind: TaskRun
+metadata:
+  name: check-source-ssl
+  namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-rule.sourcegitcheck-task: "upsert after upserting sourcegitcheck-task" 
+spec:
+  params:
+  - name: git-branch
+    value: main
+  - name: git-url
+    value: https://34.162.97.4/testing/cert-test-project.git
+  - name: git-commit
+    value: ""
+  - name: git-tag
+    value: ""
+  serviceAccountName: #@ data.values.service_account_name
+  taskRef:
+    kind: Task
+    params:
+    - name: kind
+      value: task
+    - name: name
+      value: source-git-check
+    - name: namespace
+      value: #@ data.values.namespace
+    resolver: cluster
+  timeout: 1h0m0s
+  workspaces:
+    - name: ssl-ca-directory
+      secret:
+        secretName: #@ data.values.ssl_secret_name
